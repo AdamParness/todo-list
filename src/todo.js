@@ -1,16 +1,38 @@
-import { format, compareAsc } from "date-fns";
+// src/todo.js
+import { format } from "date-fns";
 
-function ListItem(description, priorty){
-    this.description = description;
-    this.priorty = priorty;
+export class TodoItem {
+    constructor(title, description, dueDate, priority, projectId = 'default') {
+        this.title = title;
+        this.description = description;
+        this.dueDate = format(new Date(dueDate), "MM/dd/yyyy");
+        this.priority = priority;
+        this.completed = false;
+        this.projectId = projectId;
+        this.id = Date.now().toString(); // unique identifier
+    }
+
+    toggleComplete() {
+        this.completed = !this.completed;
+    }
+
+    updatePriority(newPriority) {
+        this.priority = newPriority;
+    }
 }
 
-function List(list){
-    this.list = list;
-}
+export class Project {
+    constructor(name) {
+        this.name = name;
+        this.id = Date.now().toString();
+        this.todos = [];
+    }
 
-function Todo(title, date, list){
-    this.title = title; 
-    this.date = format(new Date(), "MM/dd/yyyy");
-    this.list = new List(list);
+    addTodo(todo) {
+        this.todos.push(todo);
+    }
+
+    removeTodo(todoId) {
+        this.todos = this.todos.filter(todo => todo.id !== todoId);
+    }
 }
