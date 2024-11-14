@@ -1,4 +1,5 @@
 // src/domHandler.js
+import { format, compareAsc, addDays } from "date-fns";
 export class DOMHandler {
     constructor(projectManager) {
         this.projectManager = projectManager;
@@ -74,7 +75,7 @@ export class DOMHandler {
             <select id="todo-project" required></select>
             <button type="submit">Add Todo</button>
         `;
-
+    
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const title = document.getElementById('todo-title').value;
@@ -82,12 +83,24 @@ export class DOMHandler {
             const dueDate = document.getElementById('todo-date').value;
             const priority = document.getElementById('todo-priority').value;
             const projectId = document.getElementById('todo-project').value;
-
-            this.projectManager.createTodo(title, description, dueDate, priority, projectId);
+    
+            // Validate date
+            const selectedDate = new Date(dueDate);
+            const selectedDate2 = addDays(selectedDate, 1);
+            const today = format(new Date(), "MM/dd/yyyy");
+            const compare = compareAsc(selectedDate2, today);
+            
+            if (compare == -1) {
+                alert('Please select a date that is today or in the future.');
+                return;
+            }
+    
+            // Proceed with creating the todo if the date is valid
+            this.projectManager.createTodo(title, description, selectedDate2, priority, projectId);
             this.renderTodos(projectId);
             form.reset();
         });
-
+    
         document.getElementById('todos').appendChild(form);
     }
 
@@ -166,6 +179,7 @@ export class DOMHandler {
             // Create delete button
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
+            deleteButton.classList.add("del");
             deleteButton.addEventListener('click', () => {
                 this.projectManager.deleteTodo(todo.id, projectId);
                 this.renderTodos(projectId);
